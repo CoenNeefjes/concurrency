@@ -21,7 +21,7 @@ public class Person  extends Thread{
                 row.add(this);
 //                bouncer.enter(this);
                 party();
-//                bouncer.leave(this);
+                bouncer.leave(this);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -31,17 +31,13 @@ public class Person  extends Thread{
     private void party(){
         try {
             if (status.equals("normaal")){
-                Thread.sleep(500);
-            } else {
                 Thread.sleep(50);
+            } else {
+                Thread.sleep(500);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    public void standInQueue(){
-
     }
 
     public String getStatus(){

@@ -40,6 +40,7 @@ public class Row {
                 notFull.await();
             }
             queue.add(person);
+            notEmpty.signal();
             System.out.println("added " + person.getName() + " to the queue, size is now: " + queue.size());
         } finally {
             lock.unlock();
@@ -50,6 +51,9 @@ public class Row {
         lock.lock();
         Person person = null;
         try {
+            while (queue.size() == 0){
+                notEmpty.await();
+            }
             person = queue.remove();
             notFull.signal();
         } finally {
