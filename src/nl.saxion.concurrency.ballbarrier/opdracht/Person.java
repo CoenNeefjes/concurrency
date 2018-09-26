@@ -34,11 +34,7 @@ public class Person  extends Thread{
 
     private void party(){
         try {
-            if (status.equals("normaal")){
-                Thread.sleep(50);
-            } else {
-                Thread.sleep(500);
-            }
+            Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

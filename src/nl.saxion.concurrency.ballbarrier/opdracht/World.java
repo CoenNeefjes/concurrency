@@ -6,7 +6,7 @@ package nl.saxion.concurrency.ballbarrier.opdracht;
 public class World {
 
     private static final int NR_OF_PERSONS = 20;
-    private static final int NR_OF_IMPORTANT_PERSONS = 1;
+    private static final int NR_OF_IMPORTANT_PERSONS = 2;
 
     public static void main(String[] args){
         Club club = new Club();

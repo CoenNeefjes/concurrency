@@ -34,19 +34,26 @@ public class Club {
         return nrOfEntries == 0;
     }
 
+    private boolean moreThanHalfFull() { return nrOfEntries < MAX_NR_OF_ENTRIES/2; }
+
     public void enter(Person person) throws InterruptedException {
         lock.lock();
         try {
-            // wait if there is no room or if there is an important person in the club
-            while (noEntryAvailable() || importantInside){
-                entry.await();
-            }
             // keep track if there are important persons in the club
             if (person.getStatus().equals("belangrijk")){
+                while (moreThanHalfFull() || noEntryAvailable() || importantInside){
+                    entry.await();
+                }
                 importantInside = true;
+            } else {
+                // wait if there is no room or if there is an important person in the club
+                while (noEntryAvailable() || importantInside){
+                    entry.await();
+                }
             }
             person.setInQueue(false);
             nrOfEntries++;
+            assert nrOfEntries <= MAX_NR_OF_ENTRIES;
             inTheClub.add(person);
             System.out.println(person.getName() + " entered the club, now " + nrOfEntries + " inside");
             System.out.println("important inside= " + importantInside);
@@ -58,13 +65,12 @@ public class Club {
     public void leave(Person person) throws InterruptedException {
         lock.lock();
         try {
+            assert inTheClub.contains(person);
+            inTheClub.remove(person);
+
             nrOfEntries--;
-            if (!inTheClub.contains(person)){
-                System.out.println("ERORRRRRRRR, " + person.getName() + " is leaving while he is not there");
-                System.exit(1);
-            } else {
-                inTheClub.remove(person);
-            }
+            assert nrOfEntries >= 0;
+
             if (importantInside){
                 if (person.getStatus().equals("belangrijk")){
                     importantInside = false;
@@ -73,7 +79,6 @@ public class Club {
             } else {
                 entry.signal();
             }
-            entry.signal();
             System.out.println(person.getName() + " left the club, now " + nrOfEntries + " inside");
             System.out.println("important inside= " + importantInside);
         } finally {
