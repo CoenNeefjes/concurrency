@@ -1,41 +1,51 @@
 package nl.saxion.concurrency.ballbarrier.opdracht;
 
 /**
- * Created by coen on 21-9-2018.
+ * Created by Coen Neefjes on 25-9-2018.
  */
-public class Person implements Runnable{
+public class Person  extends Thread{
 
-    private String status = "";
+    private String status;
+    private Bouncer bouncer;
+    private Row row;
 
-    public Person(String status){
+    public Person(Bouncer bouncer, String status){
         this.status = status;
+        this.bouncer = bouncer;
+        this.row = Row.getRowInstance();
     }
 
     public void run(){
         while (true){
-            checkForEntry();
-            party();
-            signOut();
+            try {
+                row.add(this);
+//                bouncer.enter(this);
+                party();
+//                bouncer.leave(this);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void checkForEntry(){
-
-    }
-
-    public void party(){
+    private void party(){
         try {
-            wait(50);
+            if (status.equals("normaal")){
+                Thread.sleep(500);
+            } else {
+                Thread.sleep(50);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public void signOut(){
+    public void standInQueue(){
 
     }
 
     public String getStatus(){
         return this.status;
     }
+
 }

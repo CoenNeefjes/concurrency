@@ -1,15 +1,38 @@
 package nl.saxion.concurrency.ballbarrier.opdracht;
 
 /**
- * Created by coen on 21-9-2018.
+ * Created by Coen Neefjes on 25-9-2018.
  */
-public class Bouncer {
+public class Bouncer extends Thread{
 
-    public void enter(){
+    private Club club;
+    private Row row;
 
+    public Bouncer(Club club){
+        this.club = club;
+        this.row = Row.getRowInstance();
     }
 
-    public void exit(){
-
+    public void run(){
+        while (true){
+            getFromRow();
+        }
     }
+
+    private void getFromRow(){
+        try{
+            enter(row.get());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void enter(Person person) throws InterruptedException {
+        club.enter(person);
+    }
+
+    public void leave(Person person) throws InterruptedException{
+        club.leave(person);
+    }
+
 }

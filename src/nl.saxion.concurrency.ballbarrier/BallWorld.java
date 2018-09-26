@@ -9,9 +9,6 @@ public class BallWorld extends JPanel  {
     private final int xSize = 250;
     private final int ySize = 250;
 
-    private Barrier barrier;
-    private BarrierMonitor barrierMonitor;
-
     private final static Color BGCOLOR = Color.white;
 
     private ArrayList<Ball> balls = new ArrayList<Ball>();
@@ -20,8 +17,6 @@ public class BallWorld extends JPanel  {
         setPreferredSize(new Dimension(xSize,ySize));
         setOpaque(true);
         setBackground(BGCOLOR);
-        barrier = new Barrier();
-        barrierMonitor = new BarrierMonitor();
     }
 
     //
@@ -62,13 +57,5 @@ public class BallWorld extends JPanel  {
         drawDashedLine(g,0,0,this.getWidth(), this.getHeight());
         for(Ball b : balls)
             b.draw(g);
-    }
-
-    public Barrier getBarrier() {
-        return barrier;
-    }
-
-    public BarrierMonitor getBarrierMonitor() {
-        return barrierMonitor;
     }
 }

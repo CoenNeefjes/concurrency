@@ -41,11 +41,6 @@ public class Ball extends Thread {
         Balls.nap(30);
         doMove();
         world.repaint();
-
-        if (xpos == ypos){
-//            world.getBarrier().acquire();
-            world.getBarrierMonitor().acquire();
-        }
     }
      
     //
