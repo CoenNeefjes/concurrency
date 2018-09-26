@@ -6,22 +6,26 @@ package nl.saxion.concurrency.ballbarrier.opdracht;
 public class Person  extends Thread{
 
     private String status;
-    private Bouncer bouncer;
     private Row row;
+    private Club club;
 
-    public Person(Bouncer bouncer, String status){
+    private boolean inQueue = false;
+
+    public Person(Club club, Row row, String status){
         this.status = status;
-        this.bouncer = bouncer;
-        this.row = Row.getRowInstance();
+        this.row = row;
+        this.club = club;
     }
 
     public void run(){
         while (true){
             try {
                 row.add(this);
-//                bouncer.enter(this);
+                while (inQueue){
+                    Thread.sleep(50);
+                }
                 party();
-                bouncer.leave(this);
+                club.leave(this);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -42,6 +46,10 @@ public class Person  extends Thread{
 
     public String getStatus(){
         return this.status;
+    }
+
+    public void setInQueue(boolean value){
+        inQueue = value;
     }
 
 }

@@ -1,5 +1,6 @@
 package nl.saxion.concurrency.ballbarrier.opdracht;
 
+import java.util.ArrayList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -9,26 +10,24 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Club {
 
-    public static final int MAX_NR_OF_ENTRIES = 20;
+    public static final int MAX_NR_OF_ENTRIES = 10;
 
     private Lock lock;
-    private Condition notfull, importantInsideCondition;
+    private Condition entry, noImportantInside;
 
     private int nrOfEntries = 0;
     private boolean importantInside = false;
 
-    private int nrOfImortantInARow = 0;
-    private String previousStatus = "";
+    private ArrayList<Person> inTheClub = new ArrayList<>();
 
     public Club(){
         lock = new ReentrantLock();
-        notfull = lock.newCondition();
-        importantInsideCondition = lock.newCondition();
-
+        entry = lock.newCondition();
+        noImportantInside = lock.newCondition();
     }
 
     private boolean noEntryAvailable(){
-        return nrOfEntries >= MAX_NR_OF_ENTRIES;
+        return nrOfEntries == MAX_NR_OF_ENTRIES;
     }
 
     private boolean isEmpty(){
@@ -38,17 +37,19 @@ public class Club {
     public void enter(Person person) throws InterruptedException {
         lock.lock();
         try {
-            while (noEntryAvailable()){
-                notfull.await();
+            // wait if there is no room or if there is an important person in the club
+            while (noEntryAvailable() || importantInside){
+                entry.await();
             }
-            while (importantInside){
-                importantInsideCondition.await();
-            }
-            nrOfEntries++;
+            // keep track if there are important persons in the club
             if (person.getStatus().equals("belangrijk")){
                 importantInside = true;
             }
-            System.out.println(person.getName() + " joined, number of people inside: " + nrOfEntries + " and important inside= " + importantInside);
+            person.setInQueue(false);
+            nrOfEntries++;
+            inTheClub.add(person);
+            System.out.println(person.getName() + " entered the club, now " + nrOfEntries + " inside");
+            System.out.println("important inside= " + importantInside);
         } finally {
             lock.unlock();
         }
@@ -58,12 +59,23 @@ public class Club {
         lock.lock();
         try {
             nrOfEntries--;
-            System.out.println(person.getName() + " left, number of people inside: " + nrOfEntries + " and important inside= " + importantInside);
-            if (person.getStatus().equals("belangrijk")){
-                importantInside = false;
-                importantInsideCondition.signal();
+            if (!inTheClub.contains(person)){
+                System.out.println("ERORRRRRRRR, " + person.getName() + " is leaving while he is not there");
+                System.exit(1);
+            } else {
+                inTheClub.remove(person);
             }
-            notfull.signal();
+            if (importantInside){
+                if (person.getStatus().equals("belangrijk")){
+                    importantInside = false;
+                    entry.signal();
+                }
+            } else {
+                entry.signal();
+            }
+            entry.signal();
+            System.out.println(person.getName() + " left the club, now " + nrOfEntries + " inside");
+            System.out.println("important inside= " + importantInside);
         } finally {
             lock.unlock();
         }
